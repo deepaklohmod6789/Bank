@@ -10,6 +10,10 @@ contract Account {
         owner = accountee;
     }
 
+    function getOwner() public view returns (address) {
+        return owner;
+    }
+
     function getBalance() public view returns (uint256) {
         return balance;
     }
