@@ -23,6 +23,10 @@ contract Bank {
         addressToAccount[msg.sender] = account;
     }
 
+    function getAccountBalance() public view returns (uint256) {
+        return addressToAccount[msg.sender].getBalance();
+    }
+
     function addFunds(string memory timeStamp) public payable {
         require(msg.value > 0, "Amount should be greater than 0");
         addressToAccount[msg.sender].addFund(msg.value);
@@ -54,10 +58,10 @@ contract Bank {
     }
 
     function transferFund(
+        string memory timeStamp,
         uint256 amount,
         bool isAccountTransfer,
-        address receiverAddress,
-        string memory timeStamp
+        address receiverAddress
     ) public {
         Account acc = addressToAccount[msg.sender];
         uint256 balance = acc.getBalance();
