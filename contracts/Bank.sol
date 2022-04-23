@@ -1,5 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 import "./Account.sol";
 
 contract Bank {
@@ -25,6 +26,10 @@ contract Bank {
 
     function getAccountBalance() public view returns (uint256) {
         return addressToAccount[msg.sender].getBalance();
+    }
+
+    function getTransactions() public view returns (txn[] memory) {
+        return transactions[msg.sender];
     }
 
     function addFunds(string memory timeStamp) public payable {
