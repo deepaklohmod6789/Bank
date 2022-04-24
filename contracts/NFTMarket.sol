@@ -3,11 +3,12 @@ pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract NFTMarket is ReentrancyGuard {
-    uint256 itemCount;
-    uint256 itemsSold;
+contract NFTMarket is ReentrancyGuard, IERC721Receiver {
+    uint256 public itemCount;
+    uint256 public itemsSold;
     address payable owner;
     struct MarketItem {
         uint256 itemId;
@@ -32,6 +33,15 @@ contract NFTMarket is ReentrancyGuard {
         itemCount = 0;
         itemsSold = 0;
         owner = payable(msg.sender);
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     function getListingPrice() public view returns (uint128) {

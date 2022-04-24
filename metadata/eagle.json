@@ -1,11 +1,1 @@
-{
-    "name": "eagle",
-    "description": "A cute eagle",
-    "image": "ipfs://QmSPou17pWW8oTtXm98oHhA6axkbarQ9S3QrejJzXnE7ui?filename=eagle.jpg",
-    "attributes": [
-        {
-            "trait_type": "cuteness",
-            "value": 100
-        }
-    ]
-}
+{"name": "eagle", "description": "A cute eagle", "image": "ipfs://QmSPou17pWW8oTtXm98oHhA6axkbarQ9S3QrejJzXnE7ui?filename=eagle.jpg", "attributes": [{"trait_type": "cuteness", "value": 100}]}
