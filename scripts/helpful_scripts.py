@@ -1,4 +1,4 @@
-from brownie import accounts, network, config
+from brownie import accounts, network, config, LinkToken, Contract
 from pathlib import Path
 import requests, json
 
@@ -40,3 +40,16 @@ def upload_to_ipfs(filepath):
         image_uri = "ipfs://{}?filename={}".format(ipfs_hash, filename)
         print(image_uri)
     return image_uri
+
+def fund_with_link(
+    contract_address, account=None, amount=100000000000000000
+):  # 0.1 LINK
+    account = account if account else get_account()
+    tx = Contract.from_abi(
+        LinkToken._name,
+        config["networks"][network.show_active()]['link_token'],
+        LinkToken.abi
+    ).transfer(contract_address, amount, {"from": account})
+    tx.wait(1)
+    print("Fund contract!")
+    return tx
