@@ -10,6 +10,10 @@ contract NFT is ERC721 {
         tokenCounter = 0;
     }
 
+    function getTokenCounter() public view returns (uint256) {
+        return tokenCounter;
+    }
+
     function createCollectible(address marketAddress, string memory tokenURI)
         public
     {

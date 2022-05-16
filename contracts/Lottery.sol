@@ -1,11 +1,15 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import "@chainlink/contracts/src/v0.6/VRFConsumerBase.sol";
 
 contract Lottery is VRFConsumerBase {
-    uint120 public entryFee = 50 * (10**18); //50 dollars
+    uint120 public entryFee = 20 * (10**18); //20 dollars
     address payable[] participants;
+    string[] private timeStamps;
+    string[] private names;
+    mapping(address => bool) joined;
     AggregatorV3Interface internal priceFeed;
     enum State {
         OPEN,
@@ -42,7 +46,30 @@ contract Lottery is VRFConsumerBase {
         return price;
     }
 
-    function enterLottery() public payable {
+    function getParticipants()
+        public
+        view
+        returns (string[] memory, string[] memory)
+    {
+        return (names, timeStamps);
+    }
+
+    function checkLotteryJoined() public view returns (bool) {
+        return joined[msg.sender];
+    }
+
+    function checkLotteryIsOpen() public view returns (bool) {
+        if (lottery_state == State.OPEN) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function enterLottery(string memory timeStamp, string memory name)
+        public
+        payable
+    {
         require(
             lottery_state == State.OPEN,
             "Currently, we are not accepting entries"
@@ -52,6 +79,9 @@ contract Lottery is VRFConsumerBase {
             "Pay the exact entry fee to join lottery"
         );
         participants.push(payable(msg.sender));
+        timeStamps.push(timeStamp);
+        names.push(name);
+        joined[msg.sender] = true;
     }
 
     function startLottery() public {
@@ -76,7 +106,12 @@ contract Lottery is VRFConsumerBase {
         address payable recentWinner = participants[indexOfWinner];
         recentWinner.transfer(address(this).balance);
         // Reset
+        for (uint256 i = 0; i < participants.length; i++) {
+            joined[participants[i]] = false;
+        }
         participants = new address payable[](0);
+        timeStamps = new string[](0);
+        names = new string[](0);
         lottery_state = State.CLOSED;
         randomness = _randomness;
     }

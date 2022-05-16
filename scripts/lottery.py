@@ -12,13 +12,17 @@ def main():
     #     {'from':account}
     # )
     lottery=Lottery[-1]
+    participants=lottery.getParticipants()
+    print(participants)
     entryFee=lottery.getEntryFee()
-    txn1=lottery.startLottery({'from':account})
-    txn1.wait(1)
+    # txn1=lottery.startLottery({'from':account})
+    # txn1.wait(1)
     txn2=lottery.enterLottery({'from':account,'value':entryFee})
     txn2.wait(1)
-    txn3 = fund_with_link(lottery.address)
-    txn3.wait(1)
-    txn4=lottery.endLottery({'from':account})
-    txn4.wait(1)
+    participants=lottery.getParticipants()
+    print(participants)
+    # txn3 = fund_with_link(lottery.address)
+    # txn3.wait(1)
+    # txn4=lottery.endLottery({'from':account})
+    # txn4.wait(1)
     

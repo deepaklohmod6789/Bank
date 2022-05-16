@@ -6,104 +6,73 @@ import "./Account.sol";
 contract Bank {
     address private owner;
     mapping(address => Account) private addressToAccount;
-    mapping(address => txn[]) private transactions;
-    struct txn {
-        address from;
-        address to;
-        uint256 amount;
-        string timeStamp;
-        string message;
-    }
+    mapping(address => bool) private accountExistence;
 
     constructor() public {
         owner = msg.sender;
     }
 
-    function createAccount() public {
-        Account account = new Account(msg.sender);
+    function getAccountDetails() public view returns (uint256, string memory) {
+        if (accountExistence[msg.sender]) {
+            return (
+                addressToAccount[msg.sender].getBalance(),
+                addressToAccount[msg.sender].createdAt()
+            );
+        } else {
+            return (0, "");
+        }
+    }
+
+    function createAccount(string memory date) public {
+        require(
+            accountExistence[msg.sender] == false,
+            "Account already exists"
+        );
+        Account account = new Account(msg.sender, date);
         addressToAccount[msg.sender] = account;
+        accountExistence[msg.sender] = true;
     }
 
     function getAccountBalance() public view returns (uint256) {
+        require(accountExistence[msg.sender], "Account doesn't exist");
         return addressToAccount[msg.sender].getBalance();
     }
 
-    function getTransactions() public view returns (txn[] memory) {
-        return transactions[msg.sender];
-    }
-
-    function addFunds(string memory timeStamp) public payable {
+    function addFunds() public payable {
+        require(accountExistence[msg.sender], "Account doesn't exist");
         require(msg.value > 0, "Amount should be greater than 0");
         addressToAccount[msg.sender].addFund(msg.value);
-        transactions[msg.sender].push(
-            txn(
-                msg.sender,
-                address(addressToAccount[msg.sender]),
-                msg.value,
-                timeStamp,
-                "Added fund to the wallet"
-            )
-        );
     }
 
-    function withdrawFunds(string memory timeStamp, uint256 amount) public {
-        Account acc = addressToAccount[msg.sender];
-        uint256 balance = acc.getBalance();
-        require(amount <= balance, "Insufficient funds");
-        payable(msg.sender).transfer(amount);
-        transactions[msg.sender].push(
-            txn(
-                msg.sender,
-                address(addressToAccount[msg.sender]),
-                amount,
-                timeStamp,
-                "Withdrawn fund to the wallet"
-            )
-        );
-    }
-
-    function transferFund(
-        string memory timeStamp,
-        uint256 amount,
-        bool isAccountTransfer,
-        address receiverAddress
-    ) public {
+    function withdrawFunds(uint256 amount) public {
+        require(accountExistence[msg.sender], "Account doesn't exist");
         Account acc = addressToAccount[msg.sender];
         uint256 balance = acc.getBalance();
         require(amount <= balance, "Insufficient funds");
         acc.withdrawFund(amount);
-        if (isAccountTransfer) {
-            Account receiver = addressToAccount[receiverAddress];
-            receiver.addFund(amount);
-            transactions[msg.sender].push(
-                txn(
-                    msg.sender,
-                    address(receiver),
-                    amount,
-                    timeStamp,
-                    "Transferred funds to account"
-                )
-            );
-            transactions[receiverAddress].push(
-                txn(
-                    msg.sender,
-                    address(receiver),
-                    amount,
-                    timeStamp,
-                    "Recieved funds from account"
-                )
-            );
-        } else {
-            payable(receiverAddress).transfer(amount);
-            transactions[msg.sender].push(
-                txn(
-                    msg.sender,
-                    address(addressToAccount[receiverAddress]),
-                    amount,
-                    timeStamp,
-                    "Transferred funds to the wallet"
-                )
-            );
-        }
+        payable(msg.sender).transfer(amount);
+    }
+
+    function transferToAccount(uint256 amount, address receiverAddress) public {
+        require(accountExistence[msg.sender], "Account doesn't exist");
+        require(
+            accountExistence[receiverAddress],
+            "Receiver Account doesn't exist"
+        );
+        Account acc = addressToAccount[msg.sender];
+        uint256 balance = acc.getBalance();
+        require(amount <= balance, "Insufficient funds");
+        acc.withdrawFund(amount);
+        Account receiver = addressToAccount[receiverAddress];
+        receiver.addFund(amount);
+    }
+
+    function transferToWallet(uint256 amount, address receiverAddress) public {
+        require(accountExistence[msg.sender], "Account doesn't exist");
+        Account acc = addressToAccount[msg.sender];
+        uint256 balance = acc.getBalance();
+        require(amount <= balance, "Insufficient funds");
+        acc.withdrawFund(amount);
+        payable(receiverAddress).transfer(amount);
     }
 }

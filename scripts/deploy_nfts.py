@@ -6,9 +6,10 @@ OPENSEA_URL = "https://testnets.opensea.io/assets/{}/{}"
 
 def main():
     account= get_account()
-    # nft=NFT.deploy({'from':account})
+    nft=NFT.deploy({'from':account})
     # nftMarket=NFTMarket.deploy({'from':account})
-    nft=NFT[-1]
+    # nft=NFT[-1]
+    print(nft)
     nftMarket=NFTMarket[-1]
     # lp=nftMarket.getListingPrice()
     # print(lp)

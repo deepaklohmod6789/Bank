@@ -3,10 +3,12 @@ pragma solidity ^0.6.0;
 
 contract Account {
     address owner;
+    string public createdAt;
     uint256 balance;
 
-    constructor(address accountee) public {
+    constructor(address accountee, string memory date) public {
         balance = 0;
+        createdAt = date;
         owner = accountee;
     }
 
